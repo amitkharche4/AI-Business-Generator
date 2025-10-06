@@ -1,8 +1,10 @@
 
-from openai import OpenAI
 import os
+from openai import OpenAI
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 
 def generate_assets(idea):
     prompt = f"""
