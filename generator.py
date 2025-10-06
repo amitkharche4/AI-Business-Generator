@@ -3,16 +3,17 @@ import os
 from openai import OpenAI
 from assets import generate_assets
 from validate import validate_idea
-import json
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 
 def generate_business_ideas():
     prompt = """
     Generate 3 online business ideas that can make $1K/week with zero investment.
     For each idea, provide: niche, product/service, monetization method, and target audience.
     """
-    client = OpenAI(api_key=openai.api_key)
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[{"role":"user","content":prompt}]
