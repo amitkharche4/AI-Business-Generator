@@ -1,44 +1,72 @@
-
+# generator.py
 import os
+import json
+from datetime import datetime
 from openai import OpenAI
 from assets import generate_assets
 from validate import validate_idea
 
-# Initialize OpenAI client
+# ✅ Initialize OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-
 def generate_business_ideas():
+    """Generate business ideas using GPT."""
     prompt = """
-    Generate 3 online business ideas that can make $1K/week with zero investment.
-    For each idea, provide: niche, product/service, monetization method, and target audience.
+    You are an AI business strategist.
+    Generate 3 new, realistic, low-investment business ideas
+    that can make around $1,000 per week using AI tools and automation.
+    Return results in this format:
+    [
+      {"idea": "...", "summary": "...", "tools_needed": "..."},
+      {"idea": "...", "summary": "...", "tools_needed": "..."},
+      {"idea": "...", "summary": "...", "tools_needed": "..."}
+    ]
     """
-    OpenAI.api_key = os.getenv("OPENAI_API_KEY")
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
     response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[{"role":"user","content":prompt}]
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7,
     )
-    ideas = response.choices[0].message.content
+
+    text = response.choices[0].message.content
+    try:
+        ideas = json.loads(text)
+    except Exception:
+        ideas = [{"idea": f"Idea {i+1}", "summary": text, "tools_needed": "AI tools"} for i in range(3)]
     return ideas
 
-def save_to_file(data, filename="latest_ideas.json"):
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
 
-if __name__ == "__main__":
-    ideas_text = generate_business_ideas()
-    ideas_list = [idea.strip() for idea in ideas_text.split("\n") if idea.strip()]
+def main():
+    print("✅ OpenAI client initialized successfully")
+    ideas = generate_business_ideas()
 
-    full_data = []
-    for idea in ideas_list:
-        score = validate_idea(idea)
-        assets = generate_assets(idea)
-        full_data.append({
-            "idea": idea,
-            "market_score": score,
-            "assets": assets
+    print("\nGenerated Ideas:")
+    for i, idea in enumerate(ideas, 1):
+        print(f"{i}. {idea['idea']}")
+
+    results = []
+    for idea in ideas:
+        score = validate_idea(idea["idea"])
+        assets = generate_assets(idea["idea"])
+        results.append({
+            "idea": idea["idea"],
+            "summary": idea["summary"],
+            "tools_needed": idea["tools_needed"],
+            "validation_score": score,
+            "assets": assets,
         })
 
-    save_to_file(full_data)
-    print("Business ideas and assets generated and saved!")
+    output = {
+        "generated_at": datetime.utcnow().isoformat(),
+        "ideas": results
+    }
+
+    with open("latest_ideas.json", "w") as f:
+        json.dump(output, f, indent=2)
+
+    print("\n✅ Business ideas and assets generated and saved!")
+
+
+if __name__ == "__main__":
+    main()
