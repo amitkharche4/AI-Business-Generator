@@ -1,22 +1,35 @@
-
+# assets.py
 import os
 from openai import OpenAI
 
-# Initialize OpenAI client
+# ✅ Initialize OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-
 def generate_assets(idea):
+    """Generate marketing assets (logo concept, tagline, description) for a given business idea."""
     prompt = f"""
-    Create marketing assets for this business idea: {idea}.
-    Include:
-    1. Landing page copy
-    2. Email copy
-    3. 5 social media post ideas
+    You are an AI marketing assistant.
+    For the business idea: "{idea}"
+    Generate the following:
+    - A catchy brand name
+    - A one-line tagline
+    - A short description (2-3 sentences)
+    - 3 marketing post ideas for social media
+
+    Return as JSON:
+    {{
+      "brand_name": "...",
+      "tagline": "...",
+      "description": "...",
+      "posts": ["...", "...", "..."]
+    }}
     """
-    client = OpenAI(api_key=openai.api_key)
+
     response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[{"role":"user","content":prompt}]
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.8,
     )
-    return response.choices[0].message.content
+
+    text = response.choices[0].message.content.strip()
+    return text
