@@ -2,7 +2,7 @@
 import os
 import json
 from datetime import datetime
-from openai import OpenAI
+from OpenAI import OpenAI
 from assets import generate_assets
 from validate import validate_idea
 
