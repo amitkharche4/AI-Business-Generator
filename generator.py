@@ -13,6 +13,7 @@ def generate_business_ideas():
     Generate 3 online business ideas that can make $1K/week with zero investment.
     For each idea, provide: niche, product/service, monetization method, and target audience.
     """
+    OpenAI.api_key = os.getenv("OPENAI_API_KEY")
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     response = client.chat.completions.create(
         model="gpt-4",
